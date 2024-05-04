@@ -9,4 +9,5 @@ license = "MIT"
 
 [dependencies]
 anyhow = "1"
+oneshot = "0.1"
 rand = "0.8"
