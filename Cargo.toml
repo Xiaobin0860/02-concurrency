@@ -12,3 +12,12 @@ anyhow = "1"
 dashmap = "5"
 oneshot = "0.1"
 rand = "0.8"
+tokio = { version = "1", features = [
+    "rt",
+    "rt-multi-thread",
+    "macros",
+    "net",
+    "io-util",
+] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
