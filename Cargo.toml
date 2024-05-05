@@ -9,5 +9,6 @@ license = "MIT"
 
 [dependencies]
 anyhow = "1"
+dashmap = "5"
 oneshot = "0.1"
 rand = "0.8"

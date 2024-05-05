@@ -1,9 +1,6 @@
-use anyhow::{anyhow, Result};
-use std::{
-    collections::HashMap,
-    ops::Deref,
-    sync::{Arc, RwLock},
-};
+use anyhow::Result;
+use dashmap::DashMap;
+use std::{collections::HashMap, ops::Deref, sync::Arc};
 
 ///
 /// concurrency metrics table
@@ -16,7 +13,7 @@ use std::{
 /// - fearless concurrency
 ///
 
-type MetricsTable = RwLock<HashMap<String, i64>>;
+type MetricsTable = DashMap<String, i64>;
 
 pub struct MetricsState {
     pub table: MetricsTable,
@@ -48,26 +45,26 @@ impl Metrics {
 
     pub fn inc(&self, key: impl Into<String>) -> Result<i64> {
         let key = key.into();
-        let mut table = self.table.write().map_err(|e| anyhow!(e.to_string()))?;
-        let counter = table.entry(key).or_insert(0);
-        *counter += 1;
-        Ok(*counter)
+        let mut entry = self.table.entry(key.clone()).or_default();
+        let val = entry.value_mut();
+        *val += 1;
+        Ok(*val)
     }
 
     pub fn dec(&self, key: impl Into<String>) -> Result<i64> {
         let key = key.into();
-        let mut table = self.table.write().map_err(|e| anyhow!(e.to_string()))?;
-        let counter = table.entry(key).or_insert(0);
-        *counter -= 1;
-        Ok(*counter)
+        let mut entry = self.table.entry(key.clone()).or_default();
+        let val = entry.value_mut();
+        *val -= 1;
+        Ok(*val)
     }
 
     pub fn snapshot(&self) -> Result<HashMap<String, i64>> {
         Ok(self
             .table
-            .read()
-            .map_err(|e| anyhow!(e.to_string()))?
-            .clone())
+            .iter()
+            .map(|v| (v.key().clone(), *v.value()))
+            .collect())
     }
 }
 
